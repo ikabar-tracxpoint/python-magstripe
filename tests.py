@@ -5,6 +5,7 @@ from magstripe import MagStripe, MagStripeError
 class MagStripeTests(unittest.TestCase):
     valid_strings = [
         '%B4242424242424242^SURNAME/FIRSTNAME I^15052011000000000000?;4242424242424242=15052011000000000000?',
+        '%B4242424242424242^SURNAME/FIRSTNAME I^15052011000000000000?;4242424242424242=15052011000000000000?;999999999999999997387619999999999999999999?',
         # Add every credit and debit card you can get your hands on.
     ]
 
@@ -20,6 +21,8 @@ class MagStripeTests(unittest.TestCase):
         ';00007399=?',
         '%B456475756755675^ABCDE/A MR^P 1407M                                        ^?;34534534534534534=7878?',
         ';00000000==201100100900083753?',
+        ';98700223563013312=0000000000000004120?', #Shufersal member card
+
     ]
 
     def test_valid_strings(self):
@@ -31,6 +34,15 @@ class MagStripeTests(unittest.TestCase):
         m = MagStripe()
         for s in self.invalid_strings:
             self.assertRaises(MagStripeError, m.parse, s)
+
+    def test_parse(self):
+        card = '%B4242424242424242^SURNAME/FIRSTNAME I^15052011000000000000?;4242424242424242=15052011000000000000?'
+        m = MagStripe()
+        parsed_card = m.parse(card)
+        self.assertEqual(parsed_card['account'], '4242424242424242', 'Account not parsed correctly')
+        self.assertEqual(parsed_card['name'], 'FIRSTNAME I SURNAME', 'Name not parsed correctly')
+        self.assertEqual(parsed_card['expiry_year'], '15', 'Year not parsed correctly')
+        self.assertEqual(parsed_card['expiry_month'], '05', 'Month not parsed correctly')
 
 
 if __name__ == '__main__':
